@@ -6,6 +6,7 @@ import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -70,6 +71,11 @@ public class Order {
   private String stopPrice;
 
   /**
+   * Used with stop orders.
+   */
+  private String stopLimitPrice;
+
+  /**
    * Used with iceberg orders.
    */
   private String icebergQty;
@@ -78,6 +84,27 @@ public class Order {
    * Order timestamp.
    */
   private long time;
+
+  /**
+   * Used to calculate the average price
+   */
+  private String cummulativeQuoteQty;
+
+  /**
+   * Update timestamp.
+   */
+  private long updateTime;
+
+  /**
+   * Is working.
+   */
+  @JsonProperty("isWorking")
+  private boolean working;
+
+  /**
+   * Original quote order quantity.
+   */
+  private String origQuoteOrderQty;
 
   public String getSymbol() {
     return symbol;
@@ -167,6 +194,14 @@ public class Order {
     this.stopPrice = stopPrice;
   }
 
+  public String getStopLimitPrice() {
+    return stopLimitPrice;
+  }
+
+  public void setStopLimitPrice(String stopLimitPrice) {
+    this.stopLimitPrice = stopLimitPrice;
+  }
+
   public String getIcebergQty() {
     return icebergQty;
   }
@@ -183,22 +218,59 @@ public class Order {
     this.time = time;
   }
 
+  public String getCummulativeQuoteQty() {
+    return cummulativeQuoteQty;
+  }
+
+  public void setCummulativeQuoteQty(String cummulativeQuoteQty) {
+    this.cummulativeQuoteQty = cummulativeQuoteQty;
+  }
+
+  public long getUpdateTime() {
+    return updateTime;
+  }
+
+  public void setUpdateTime(long updateTime) {
+    this.updateTime = updateTime;
+  }
+
+  public boolean isWorking() {
+    return working;
+  }
+
+  public void setWorking(boolean working) {
+    this.working = working;
+  }
+
+  public String getOrigQuoteOrderQty() {
+    return origQuoteOrderQty;
+  }
+
+  public void setOrigQuoteOrderQty(String origQuoteOrderQty) {
+    this.origQuoteOrderQty = origQuoteOrderQty;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this, BinanceApiConstants.TO_STRING_BUILDER_STYLE)
-        .append("symbol", symbol)
-        .append("orderId", orderId)
-        .append("clientOrderId", clientOrderId)
-        .append("price", price)
-        .append("origQty", origQty)
-        .append("executedQty", executedQty)
-        .append("status", status)
-        .append("timeInForce", timeInForce)
-        .append("type", type)
-        .append("side", side)
-        .append("stopPrice", stopPrice)
-        .append("icebergQty", icebergQty)
-        .append("time", time)
-        .toString();
+            .append("symbol", symbol)
+            .append("orderId", orderId)
+            .append("clientOrderId", clientOrderId)
+            .append("price", price)
+            .append("origQty", origQty)
+            .append("executedQty", executedQty)
+            .append("status", status)
+            .append("timeInForce", timeInForce)
+            .append("type", type)
+            .append("side", side)
+            .append("stopPrice", stopPrice)
+            .append("stopLimitPrice", stopLimitPrice)
+            .append("icebergQty", icebergQty)
+            .append("time", time)
+            .append("cummulativeQuoteQty", cummulativeQuoteQty)
+            .append("updateTime", updateTime)
+            .append("isWorking", working)
+            .append("origQuoteOrderQty", origQuoteOrderQty)
+            .toString();
   }
 }

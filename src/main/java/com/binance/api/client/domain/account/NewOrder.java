@@ -4,11 +4,13 @@ import com.binance.api.client.constant.BinanceApiConstants;
 import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * A trade order to enter or exit a position.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewOrder {
 
   /**
@@ -37,6 +39,11 @@ public class NewOrder {
   private String quantity;
 
   /**
+   * Quote quantity.
+   */
+  private String quoteOrderQty;
+
+  /**
    * Price.
    */
   private String price;
@@ -52,9 +59,19 @@ public class NewOrder {
   private String stopPrice;
 
   /**
+   * Used with stop orders.
+   */
+  private String stopLimitPrice;
+
+  /**
    * Used with iceberg orders.
    */
   private String icebergQty;
+
+  /**
+   * Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+   */
+  private NewOrderResponseType newOrderRespType;
 
   /**
    * Receiving window.
@@ -75,6 +92,7 @@ public class NewOrder {
     this.type = type;
     this.timeInForce = timeInForce;
     this.quantity = quantity;
+    this.newOrderRespType = NewOrderResponseType.RESULT;
     this.timestamp = System.currentTimeMillis();
     this.recvWindow = BinanceApiConstants.DEFAULT_RECEIVING_WINDOW;
   }
@@ -132,6 +150,15 @@ public class NewOrder {
     return this;
   }
 
+  public String getQuoteOrderQty() {
+    return quoteOrderQty;
+  }
+
+  public NewOrder quoteOrderQty(String quoteOrderQty) {
+    this.quoteOrderQty = quoteOrderQty;
+    return this;
+  }
+
   public String getPrice() {
     return price;
   }
@@ -159,12 +186,30 @@ public class NewOrder {
     return this;
   }
 
+  public String getStopLimitPrice() {
+    return stopLimitPrice;
+  }
+
+  public NewOrder stopLimitPrice(String stopLimitPrice) {
+    this.stopLimitPrice = stopLimitPrice;
+    return this;
+  }
+
   public String getIcebergQty() {
     return icebergQty;
   }
 
   public NewOrder icebergQty(String icebergQty) {
     this.icebergQty = icebergQty;
+    return this;
+  }
+
+  public NewOrderResponseType getNewOrderRespType() {
+    return newOrderRespType;
+  }
+
+  public NewOrder newOrderRespType(NewOrderResponseType newOrderRespType) {
+    this.newOrderRespType = newOrderRespType;
     return this;
   }
 
@@ -225,17 +270,20 @@ public class NewOrder {
   @Override
   public String toString() {
     return new ToStringBuilder(this, BinanceApiConstants.TO_STRING_BUILDER_STYLE)
-        .append("symbol", symbol)
-        .append("side", side)
-        .append("type", type)
-        .append("timeInForce", timeInForce)
-        .append("quantity", quantity)
-        .append("price", price)
-        .append("newClientOrderId", newClientOrderId)
-        .append("stopPrice", stopPrice)
-        .append("icebergQty", icebergQty)
-        .append("recvWindow", recvWindow)
-        .append("timestamp", timestamp)
-        .toString();
+            .append("symbol", symbol)
+            .append("side", side)
+            .append("type", type)
+            .append("timeInForce", timeInForce)
+            .append("quantity", quantity)
+            .append("quoteOrderQty", quoteOrderQty)
+            .append("price", price)
+            .append("newClientOrderId", newClientOrderId)
+            .append("stopPrice", stopPrice)
+            .append("stopLimitPrice", stopLimitPrice)
+            .append("icebergQty", icebergQty)
+            .append("newOrderRespType", newOrderRespType)
+            .append("recvWindow", recvWindow)
+            .append("timestamp", timestamp)
+            .toString();
   }
 }

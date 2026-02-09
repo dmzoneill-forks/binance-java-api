@@ -1,18 +1,7 @@
 package com.binance.api.client;
 
-import com.binance.api.client.domain.account.Account;
-import com.binance.api.client.domain.account.DepositAddress;
-import com.binance.api.client.domain.account.DepositHistory;
-import com.binance.api.client.domain.account.NewOrder;
-import com.binance.api.client.domain.account.NewOrderResponse;
-import com.binance.api.client.domain.account.Order;
-import com.binance.api.client.domain.account.Trade;
-import com.binance.api.client.domain.account.TradeHistoryItem;
-import com.binance.api.client.domain.account.WithdrawHistory;
-import com.binance.api.client.domain.account.request.AllOrdersRequest;
-import com.binance.api.client.domain.account.request.CancelOrderRequest;
-import com.binance.api.client.domain.account.request.OrderRequest;
-import com.binance.api.client.domain.account.request.OrderStatusRequest;
+import com.binance.api.client.domain.account.*;
+import com.binance.api.client.domain.account.request.*;
 import com.binance.api.client.domain.general.ExchangeInfo;
 import com.binance.api.client.domain.general.Asset;
 import com.binance.api.client.domain.market.AggTrade;
@@ -26,7 +15,7 @@ import com.binance.api.client.domain.market.TickerStatistics;
 import java.util.List;
 
 /**
- * Binance API façade, supporting synchronous/blocking access Binance's REST API.
+ * Binance API facade, supporting synchronous/blocking access Binance's REST API.
  */
 public interface BinanceApiRestClient {
 
@@ -68,7 +57,7 @@ public interface BinanceApiRestClient {
    * Get recent trades (up to last 500). Weight: 1
    *
    * @param symbol ticker symbol (e.g. ETHBTC)
-   * @param limit of last trades (Default 500; max 500.)
+   * @param limit of last trades (Default 500; max 1000.)
    */
   List<TradeHistoryItem> getTrades(String symbol, Integer limit);
 
@@ -76,7 +65,7 @@ public interface BinanceApiRestClient {
    * Get older trades. Weight: 5
    *
    * @param symbol ticker symbol (e.g. ETHBTC)
-   * @param limit of last trades (Default 500; max 500.)
+   * @param limit of last trades (Default 500; max 1000.)
    * @param fromId TradeId to fetch from. Default gets most recent trades.
    */
   List<TradeHistoryItem> getHistoricalTrades(String symbol, Integer limit, Long fromId);
@@ -90,7 +79,7 @@ public interface BinanceApiRestClient {
    *
    * @param symbol symbol to aggregate (mandatory)
    * @param fromId ID to get aggregate trades from INCLUSIVE (optional)
-   * @param limit Default 500; max 500 (optional)
+   * @param limit Default 500; max 1000 (optional)
    * @param startTime Timestamp in ms to get aggregate trades from INCLUSIVE (optional).
    * @param endTime Timestamp in ms to get aggregate trades until INCLUSIVE (optional).
    * @return a list of aggregate trades for the given symbol
@@ -109,7 +98,7 @@ public interface BinanceApiRestClient {
    *
    * @param symbol symbol to aggregate (mandatory)
    * @param interval candlestick interval (mandatory)
-   * @param limit Default 500; max 500 (optional)
+   * @param limit Default 500; max 1000 (optional)
    * @param startTime Timestamp in ms to get candlestick bars from INCLUSIVE (optional).
    * @param endTime Timestamp in ms to get candlestick bars until INCLUSIVE (optional).
    * @return a candlestick bar for the given symbol and interval
@@ -182,7 +171,7 @@ public interface BinanceApiRestClient {
    *
    * @param cancelOrderRequest order status request parameters
    */
-  void cancelOrder(CancelOrderRequest cancelOrderRequest);
+  CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest);
 
   /**
    * Get all open orders on a symbol.
@@ -201,6 +190,38 @@ public interface BinanceApiRestClient {
   List<Order> getAllOrders(AllOrdersRequest orderRequest);
 
   /**
+   * Send in a new OCO;
+   *
+   * @param oco
+   *            the OCO to submit
+   * @return a response containing details about the newly placed OCO.
+   */
+  NewOCOResponse newOCO(NewOCO oco);
+
+  /**
+   * Cancel an entire Order List
+   *
+   * @return
+   */
+  CancelOrderListResponse cancelOrderList(CancelOrderListRequest cancelOrderListRequest);
+
+  /**
+   * Check an order list status
+   *
+   * @param orderListStatusRequest
+   * @return an orderList
+   */
+  OrderList getOrderListStatus(OrderListStatusRequest orderListStatusRequest);
+
+  /**
+   * Get all list os orders
+   *
+   * @param allOrderListRequest
+   * @return
+   */
+  List<OrderList> getAllOrderList(AllOrderListRequest allOrderListRequest);
+
+  /**
    * Get current account information.
    */
   Account getAccount(Long recvWindow, Long timestamp);
@@ -214,7 +235,7 @@ public interface BinanceApiRestClient {
    * Get trades for a specific account and symbol.
    *
    * @param symbol symbol to get trades from
-   * @param limit default 500; max 500
+   * @param limit default 500; max 1000
    * @param fromId TradeId to fetch from. Default gets most recent trades.
    * @return a list of trades
    */
@@ -224,7 +245,7 @@ public interface BinanceApiRestClient {
    * Get trades for a specific account and symbol.
    *
    * @param symbol symbol to get trades from
-   * @param limit default 500; max 500
+   * @param limit default 500; max 1000
    * @return a list of trades
    */
   List<Trade> getMyTrades(String symbol, Integer limit);
@@ -236,6 +257,8 @@ public interface BinanceApiRestClient {
    * @return a list of trades
    */
   List<Trade> getMyTrades(String symbol);
+  
+  List<Trade> getMyTrades(String symbol, Long fromId);
 
   /**
    * Submit a withdraw request.
@@ -246,8 +269,15 @@ public interface BinanceApiRestClient {
    * @param address address to withdraw to
    * @param amount amount to withdraw
    * @param name description/alias of the address
+   * @param addressTag Secondary address identifier for coins like XRP,XMR etc.
    */
-  void withdraw(String asset, String address, String amount, String name);
+  WithdrawResult withdraw(String asset, String address, String amount, String name, String addressTag);
+
+  /**
+   * Conver a list of assets to BNB
+   * @param asset the list of assets to convert
+   */
+  DustTransferResponse dustTranfer(List<String> asset);
 
   /**
    * Fetch account deposit history.
@@ -262,6 +292,13 @@ public interface BinanceApiRestClient {
    * @return withdraw history, containing a list of withdrawals
    */
   WithdrawHistory getWithdrawHistory(String asset);
+
+  /**
+   * Fetch sub-account transfer history.
+   *
+   * @return sub-account transfers
+   */
+  List<SubAccountTransfer> getSubAccountTransfers();
 
   /**
    * Fetch deposit address.
